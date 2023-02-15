@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shop_app/providers/products_provider.dart';
 
 import '../widgets/products_grid.dart';
 
@@ -9,8 +7,7 @@ enum filterOptions { Favorites, All }
 class ProductsOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final productContainer = Provider.of<ProductsProvider>(context);
-
+    // final productContainer = Provider.of<ProductsProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('MyShop'),
