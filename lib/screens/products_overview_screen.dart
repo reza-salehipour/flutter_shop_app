@@ -18,9 +18,9 @@ class ProductsOverviewScreen extends StatelessWidget {
           PopupMenuButton(
             onSelected: (filterOptions selectedValue) {
               if (selectedValue == filterOptions.Favorites) {
-                productContainer.showFavoriteOnly();
+                // productContainer.showFavoriteOnly();
               } else {
-                productContainer.showAll();
+                // productContainer.showAll();
               }
             },
             itemBuilder: (_) => [
