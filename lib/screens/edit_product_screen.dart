@@ -48,8 +48,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
   @override
   void didChangeDependencies() {
     if (_isInit) {
-      final productId = ModalRoute.of(context)?.settings.arguments as String;
-      if (productId != null) {
+      if (ModalRoute.of(context)?.settings.arguments != null) {
+        final productId = ModalRoute.of(context)?.settings.arguments as String;
         _editedProduct = Provider.of<ProductsProvider>(context, listen: false)
             .findById(productId);
         _initValues = {
@@ -69,10 +69,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
   void _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus) {
       if ((!_imageUrlController.text.startsWith('http') &&
-              !_imageUrlController.text.startsWith('http')) ||
-          (!_imageUrlController.text.startsWith('.png') &&
-              !_imageUrlController.text.startsWith('.jpg') &&
-              !_imageUrlController.text.startsWith('.jpeg'))) {
+              !_imageUrlController.text.startsWith('https')) ||
+          (!_imageUrlController.text.endsWith('.png') &&
+              !_imageUrlController.text.endsWith('.jpg') &&
+              !_imageUrlController.text.endsWith('.jpeg'))) {
         return;
       }
       setState(() {});
@@ -81,14 +81,20 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   void _saveForm() {
     final isValid = _form.currentState?.validate();
+    print(isValid);
     if (!isValid!) {
       return;
     }
     _form.currentState?.save();
     setState(() {
       _isLoading = true;
+      print(isValid);
+      print(_editedProduct);
+      print(_editedProduct.id == '');
+      print(_editedProduct.toString().contains('id'));
+      print(_editedProduct.id != null);
     });
-    if (_editedProduct.id != null) {
+    if (_editedProduct.id != '') {
       Provider.of<ProductsProvider>(context, listen: false)
           .updateProduct(_editedProduct.id, _editedProduct);
       setState(() {
@@ -250,25 +256,25 @@ class _EditProductScreenState extends State<EditProductScreen> {
                                 textInputAction: TextInputAction.done,
                                 controller: _imageUrlController,
                                 // check if this is needed
-                                // onEditingComplete: () {
-                                //   setState(() {});
-                                // },
+                                onEditingComplete: () {
+                                  setState(() {});
+                                },
                                 focusNode: _imageUrlFocusNode,
                                 onFieldSubmitted: (_) {
                                   _saveForm();
                                 },
                                 validator: (value) {
                                   if (value!.isEmpty) {
-                                    return 'Please enter a url';
+                                    return 'Please enter an image URL.';
                                   }
                                   if (!value.startsWith('http') &&
-                                      !value.startsWith('http')) {
-                                    return 'Please enter a valid url';
+                                      !value.startsWith('https')) {
+                                    return 'Please enter a valid URL.';
                                   }
-                                  if (!value.startsWith('.png') &&
-                                      !value.startsWith('.jpg') &&
-                                      !value.startsWith('.jpeg')) {
-                                    return 'Please enter a valid image url';
+                                  if (!value.endsWith('.png') &&
+                                      !value.endsWith('.jpg') &&
+                                      !value.endsWith('.jpeg')) {
+                                    return 'Please enter a valid image URL.';
                                   }
                                   return null;
                                 },
