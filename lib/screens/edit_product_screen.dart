@@ -79,67 +79,64 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     final isValid = _form.currentState?.validate();
-    print(isValid);
     if (!isValid!) {
       return;
     }
     _form.currentState?.save();
     setState(() {
       _isLoading = true;
-      print(isValid);
-      print(_editedProduct);
-      print(_editedProduct.id == '');
-      print(_editedProduct.toString().contains('id'));
-      print(_editedProduct.id != null);
     });
     if (_editedProduct.id != '') {
-      Provider.of<ProductsProvider>(context, listen: false)
+      await Provider.of<ProductsProvider>(context, listen: false)
           .updateProduct(_editedProduct.id, _editedProduct);
-      setState(() {
-        _isLoading = false;
-      });
-      Navigator.of(context).pop();
     } else {
-      Provider.of<ProductsProvider>(context, listen: false)
-          .addProduct(_editedProduct)
-          .catchError((error) {
-        return showDialog<void>(
-            context: context,
-            builder: (_) => AlertDialog(
-                  title: Text('An error occured!'),
-                  content: Text('Something went wronng'),
-                  actions: <Widget>[
-                    TextButton(
-                        onPressed: () {
-                          Navigator.of(_).pop();
-                        },
-                        child: Text('oKAY'))
-                  ],
-                ));
-      }).then((_) {
-        setState(() {
-          _isLoading = false;
-        });
-        Navigator.of(context).pop();
-      });
+      try {
+        await Provider.of<ProductsProvider>(context, listen: false)
+            .addProduct(_editedProduct);
+      } catch (error) {
+        await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('An error occurred!'),
+            content: const Text('Something went wrong.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Okay'),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+              )
+            ],
+          ),
+        );
+      }
+      // finally {
+      //   setState(() {
+      //     _isLoading = false;
+      //   });
+      //   Navigator.of(context).pop();
+      // }
     }
-
+    setState(() {
+      _isLoading = false;
+    });
     Navigator.of(context).pop();
+    // Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Product'),
+        title: const Text('Edit Product'),
         actions: <Widget>[
           IconButton(onPressed: _saveForm, icon: Icon(Icons.save))
         ],
       ),
       body: _isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : Padding(
@@ -152,7 +149,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       children: <Widget>[
                         TextFormField(
                           initialValue: _initValues['title'],
-                          decoration: InputDecoration(labelText: 'Title'),
+                          decoration: const InputDecoration(labelText: 'Title'),
                           textInputAction: TextInputAction.next,
                           onFieldSubmitted: (_) {
                             FocusScope.of(context)
@@ -176,7 +173,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         ),
                         TextFormField(
                           initialValue: _initValues['price'],
-                          decoration: InputDecoration(labelText: 'Price'),
+                          decoration: const InputDecoration(labelText: 'Price'),
                           textInputAction: TextInputAction.next,
                           keyboardType: TextInputType.number,
                           focusNode: _priceFocusNode,
@@ -208,7 +205,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         ),
                         TextFormField(
                           initialValue: _initValues['description'],
-                          decoration: InputDecoration(labelText: 'Description'),
+                          decoration:
+                              const InputDecoration(labelText: 'Description'),
                           maxLines: 3,
                           keyboardType: TextInputType.multiline,
                           focusNode: _descriptionFocusNode,
@@ -237,21 +235,21 @@ class _EditProductScreenState extends State<EditProductScreen> {
                             Container(
                               width: 100,
                               height: 100,
-                              margin: EdgeInsets.only(top: 9, right: 10),
+                              margin: const EdgeInsets.only(top: 9, right: 10),
                               decoration: BoxDecoration(
                                   border:
                                       Border.all(width: 1, color: Colors.grey)),
                               child: _imageUrlController.text.isEmpty
                                   ? Text('Enter a URL')
                                   : FittedBox(
+                                      fit: BoxFit.cover,
                                       child: Image.network(
-                                          _imageUrlController.text),
-                                      fit: BoxFit.cover),
+                                          _imageUrlController.text)),
                             ),
                             Expanded(
                               child: TextFormField(
-                                decoration:
-                                    InputDecoration(labelText: 'Image Url'),
+                                decoration: const InputDecoration(
+                                    labelText: 'Image Url'),
                                 keyboardType: TextInputType.url,
                                 textInputAction: TextInputAction.done,
                                 controller: _imageUrlController,
