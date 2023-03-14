@@ -31,21 +31,17 @@ class UserProductItem extends StatelessWidget {
                 color: Theme.of(context).primaryColor),
             IconButton(
               onPressed: () async {
-                try{
-                await Provider.of<ProductsProvider>(context, listen: false)
-                    .deleteProduct(id);
+                try {
+                  await Provider.of<ProductsProvider>(context, listen: false)
+                      .deleteProduct(id);
+                } catch (eror) {
+                  scaffoldMessenger.showSnackBar(const SnackBar(
+                      content: Text(
+                        'Deleting Failed',
+                        textAlign: TextAlign.center,
+                      ),
+                      duration: const Duration(seconds: 2)));
                 }
-                catch(eror){
-                  scaffoldMessenger.showSnackBar(SnackBar(
-                content: const Text(
-                  'Deleting Failed',
-                  textAlign: TextAlign.center,
-                ),
-                duration: const Duration(seconds: 2),
-                action: 
-              ));
-                }
-
               },
               icon: Icon(Icons.delete),
               color: Theme.of(context).errorColor,
