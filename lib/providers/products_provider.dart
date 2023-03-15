@@ -104,9 +104,10 @@ class ProductsProvider with ChangeNotifier {
         'https://shop-app-flutter-bca2d-default-rtdb.firebaseio.com/products.json');
     return http.get(url).then((response) {
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      print(extractedData);
       final List<Product> loadedProducts = [];
-
+      if (extractedData == null) {
+        return;
+      }
       extractedData.forEach(
         (productId, productData) {
           loadedProducts.add(Product(
