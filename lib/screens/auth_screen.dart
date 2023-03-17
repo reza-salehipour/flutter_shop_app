@@ -247,12 +247,12 @@ class _AuthCardState extends State<AuthCard> {
                             MaterialStateProperty.all<RoundedRectangleBorder>(
                                 RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30))),
-                        foregroundColor: MaterialStateProperty.all(
+                        backgroundColor: MaterialStateProperty.all(
                             Theme.of(context).primaryColor),
                         padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                             const EdgeInsets.symmetric(
                                 horizontal: 30.0, vertical: 8.0)),
-                        backgroundColor: MaterialStateProperty.all(
+                        foregroundColor: MaterialStateProperty.all(
                             Theme.of(context).primaryTextTheme.button!.color)),
                     child:
                         Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
