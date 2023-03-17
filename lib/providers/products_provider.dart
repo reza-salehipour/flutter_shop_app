@@ -44,7 +44,8 @@ class ProductsProvider with ChangeNotifier {
   ];
 
   // var _showFavoriteOnly = false;
-
+  final String? authToken;
+  ProductsProvider(this.authToken, this._items);
   List<Product> get items {
     // if (_showFavoriteOnly) {
     //   return _items.where((productItem) => productItem.isFavorite).toList();
@@ -99,9 +100,8 @@ class ProductsProvider with ChangeNotifier {
   // }
 
   Future<void> fetchAndSetProducts() {
-    print('reza');
     final url = Uri.parse(
-        'https://shop-app-flutter-bca2d-default-rtdb.firebaseio.com/products.json');
+        'https://shop-app-flutter-bca2d-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     return http.get(url).then((response) {
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> loadedProducts = [];
