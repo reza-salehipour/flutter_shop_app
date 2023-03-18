@@ -13,7 +13,7 @@ class UserProductsScreen extends StatelessWidget {
 
   Future<void> _refreshProducts(BuildContext context) async {
     await Provider.of<ProductsProvider>(context, listen: false)
-        .fetchAndSetProducts();
+        .fetchAndSetProducts(true);
   }
 
   @override
@@ -31,22 +31,31 @@ class UserProductsScreen extends StatelessWidget {
               icon: const Icon(Icons.add))
         ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () => _refreshProducts(context),
-        child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: ListView.builder(
-              itemBuilder: ((_, index) => Column(
-                    children: <Widget>[
-                      UserProductItem(
-                          id: productsData.items[index].id,
-                          title: productsData.items[index].title,
-                          imageUrl: productsData.items[index].imageUrl),
-                      const Divider()
-                    ],
-                  )),
-              itemCount: productsData.items.length,
-            )),
+      body: FutureBuilder(
+        future: _refreshProducts(context),
+        builder: (context, snapshot) =>
+            snapshot.connectionState == ConnectionState.waiting
+                ? Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: () => _refreshProducts(context),
+                    child: Consumer<ProductsProvider>(
+                      builder: (context, productsData, _) => Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: ListView.builder(
+                            itemBuilder: ((_, index) => Column(
+                                  children: <Widget>[
+                                    UserProductItem(
+                                        id: productsData.items[index].id,
+                                        title: productsData.items[index].title,
+                                        imageUrl:
+                                            productsData.items[index].imageUrl),
+                                    const Divider()
+                                  ],
+                                )),
+                            itemCount: productsData.items.length,
+                          )),
+                    ),
+                  ),
       ),
       drawer: AppDrawer(),
     );
