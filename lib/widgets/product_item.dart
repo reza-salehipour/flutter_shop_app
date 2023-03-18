@@ -21,7 +21,8 @@ class ProductItem extends StatelessWidget {
           leading: Consumer<Product>(
               builder: (context, product, child) => IconButton(
                     onPressed: () {
-                      product.toggleFavoriteStatus(authData.token);
+                      product.toggleFavoriteStatus(
+                          authData.token, authData.userId);
                     },
                     icon: Icon(product.isFavorite
                         ? Icons.favorite
@@ -39,11 +40,11 @@ class ProductItem extends StatelessWidget {
                   title: product.title);
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(
+                content: const Text(
                   'Added Item to cart',
                   textAlign: TextAlign.center,
                 ),
-                duration: Duration(seconds: 2),
+                duration: const Duration(seconds: 2),
                 action: SnackBarAction(
                   label: 'Undo',
                   onPressed: () {
