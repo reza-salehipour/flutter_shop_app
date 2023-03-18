@@ -58,7 +58,7 @@ class OrdersProvider with ChangeNotifier {
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final url = Uri.parse(
-        'https://shop-app-flutter-bca2d-default-rtdb.firebaseio.com/orders.json');
+        'https://shop-app-flutter-bca2d-default-rtdb.firebaseio.com/orders.json?auth=$authToken');
     final timestamp = DateTime.now();
     try {
       final response = await http.post(url,
