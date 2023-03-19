@@ -122,6 +122,12 @@ class _AuthCardState extends State<AuthCard>
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _controller!.dispose();
+    super.dispose();
+  }
+
   void _showErrorDialog(String message) {
     showDialog(
         context: context,
