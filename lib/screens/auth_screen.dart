@@ -106,19 +106,21 @@ class _AuthCardState extends State<AuthCard>
   var _isLoading = false;
   final _passwordController = TextEditingController();
   AnimationController? _controller;
-  Animation<Size>? _heghtAnimation;
+  Animation<Offset>? _slideAnimation;
+  Animation<double>? _opacityAnimation;
 
   @override
   void initState() {
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
-    _heghtAnimation = Tween<Size>(
-            begin: const Size(double.infinity, 260),
-            end: const Size(double.infinity, 320))
+    _slideAnimation = Tween<Offset>(
+            begin: const Offset(0, -1.5), end: const Offset(0, 0))
         .animate(CurvedAnimation(parent: _controller!, curve: Curves.linear));
-    _heghtAnimation!.addListener(() {
-      setState(() {});
-    });
+    // _heghtAnimation!.addListener(() {
+    //   setState(() {});
+    // });
+    _opacityAnimation = Tween(begin: 0.0, end: 1.0)
+        .animate(CurvedAnimation(parent: _controller!, curve: Curves.easeIn));
     super.initState();
   }
 
@@ -202,103 +204,218 @@ class _AuthCardState extends State<AuthCard>
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-      ),
-      elevation: 8.0,
-      child: Container(
-        // height: _authMode == AuthMode.Signup ? 320 : 260,
-        height: _heghtAnimation!.value.height,
-        constraints: BoxConstraints(minHeight: _heghtAnimation!.value.height),
-        width: deviceSize.width * 0.75,
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'E-Mail'),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value!.isEmpty || !value.contains('@')) {
-                      return 'Invalid email!';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _authData['email'] = value!;
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                  controller: _passwordController,
-                  validator: (value) {
-                    if (value!.isEmpty || value.length < 5) {
-                      return 'Password is too short!';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _authData['password'] = value!;
-                  },
-                ),
-                if (_authMode == AuthMode.Signup)
-                  TextFormField(
-                    enabled: _authMode == AuthMode.Signup,
-                    decoration:
-                        const InputDecoration(labelText: 'Confirm Password'),
-                    obscureText: true,
-                    validator: _authMode == AuthMode.Signup
-                        ? (value) {
-                            if (value != _passwordController.text) {
-                              return 'Passwords do not match!';
-                            }
-                            return null;
-                          }
-                        : null,
-                  ),
-                const SizedBox(
-                  height: 20,
-                ),
-                if (_isLoading)
-                  const CircularProgressIndicator()
-                else
-                  ElevatedButton(
-                    onPressed: _submit,
-                    style: ButtonStyle(
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30))),
-                        backgroundColor: MaterialStateProperty.all(
-                            Theme.of(context).primaryColor),
-                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                            const EdgeInsets.symmetric(
-                                horizontal: 30.0, vertical: 8.0)),
-                        foregroundColor: MaterialStateProperty.all(
-                            Theme.of(context).primaryTextTheme.button!.color)),
-                    child:
-                        Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
-                  ),
-                TextButton(
-                  onPressed: _switchAuthMode,
-                  style: ButtonStyle(
-                    foregroundColor: MaterialStateProperty.all(
-                        Theme.of(context).primaryColor),
-                    padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                        const EdgeInsets.symmetric(
-                            horizontal: 30.0, vertical: 4)),
-                  ),
-                  child: Text(
-                      '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
-                ),
-              ],
-            ),
-          ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
         ),
-      ),
-    );
+        elevation: 8.0,
+        child: AnimatedContainer(
+            height: _authMode == AuthMode.Signup ? 320 : 260,
+            constraints: BoxConstraints(
+                minHeight: _authMode == AuthMode.Signup ? 320 : 260),
+            width: deviceSize.width * 0.75,
+            padding: const EdgeInsets.all(16.0),
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeIn,
+            child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      TextFormField(
+                        decoration: const InputDecoration(labelText: 'E-Mail'),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value!.isEmpty || !value.contains('@')) {
+                            return 'Invalid email!';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _authData['email'] = value!;
+                        },
+                      ),
+                      TextFormField(
+                        decoration:
+                            const InputDecoration(labelText: 'Password'),
+                        obscureText: true,
+                        controller: _passwordController,
+                        validator: (value) {
+                          if (value!.isEmpty || value.length < 5) {
+                            return 'Password is too short!';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          _authData['password'] = value!;
+                        },
+                      ),
+                      AnimatedContainer(
+                        duration: Duration(seconds: 300),
+                        constraints: BoxConstraints(
+                            minHeight: _authMode == AuthMode.Signup ? 60 : 0,
+                            maxHeight: _authMode == AuthMode.Signup ? 120 : 0),
+                        curve: Curves.easeIn,
+                        child: FadeTransition(
+                          opacity: _opacityAnimation!,
+                          child: SlideTransition(
+                            position: _slideAnimation!,
+                            child: TextFormField(
+                              enabled: _authMode == AuthMode.Signup,
+                              decoration: const InputDecoration(
+                                  labelText: 'Confirm Password'),
+                              obscureText: true,
+                              validator: _authMode == AuthMode.Signup
+                                  ? (value) {
+                                      if (value != _passwordController.text) {
+                                        return 'Passwords do not match!';
+                                      }
+                                      return null;
+                                    }
+                                  : null,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      if (_isLoading)
+                        const CircularProgressIndicator()
+                      else
+                        ElevatedButton(
+                          onPressed: _submit,
+                          style: ButtonStyle(
+                              shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30))),
+                              backgroundColor: MaterialStateProperty.all(
+                                  Theme.of(context).primaryColor),
+                              padding:
+                                  MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                      const EdgeInsets.symmetric(
+                                          horizontal: 30.0, vertical: 8.0)),
+                              foregroundColor: MaterialStateProperty.all(
+                                  Theme.of(context).primaryTextTheme.button!.color)),
+                          child: Text(_authMode == AuthMode.Login
+                              ? 'LOGIN'
+                              : 'SIGN UP'),
+                        ),
+                      TextButton(
+                        onPressed: _switchAuthMode,
+                        style: ButtonStyle(
+                          foregroundColor: MaterialStateProperty.all(
+                              Theme.of(context).primaryColor),
+                          padding:
+                              MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                  const EdgeInsets.symmetric(
+                                      horizontal: 30.0, vertical: 4)),
+                        ),
+                        child: Text(
+                            '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
+                      ),
+                    ],
+                  ),
+                )))
+        //   AnimatedBuilder(
+        //       builder: (context, ch) => Container(
+        //           // height: _authMode == AuthMode.Signup ? 320 : 260,
+        //           height: _heghtAnimation!.value.height,
+        //           constraints:
+        //               BoxConstraints(minHeight: _heghtAnimation!.value.height),
+        //           width: deviceSize.width * 0.75,
+        //           padding: const EdgeInsets.all(16.0),
+        //           child: ch),
+        //       animation: _heghtAnimation!,
+        //       child: Form(
+        //         key: _formKey,
+        //         child: SingleChildScrollView(
+        //           child: Column(
+        //             children: <Widget>[
+        //               TextFormField(
+        //                 decoration: const InputDecoration(labelText: 'E-Mail'),
+        //                 keyboardType: TextInputType.emailAddress,
+        //                 validator: (value) {
+        //                   if (value!.isEmpty || !value.contains('@')) {
+        //                     return 'Invalid email!';
+        //                   }
+        //                   return null;
+        //                 },
+        //                 onSaved: (value) {
+        //                   _authData['email'] = value!;
+        //                 },
+        //               ),
+        //               TextFormField(
+        //                 decoration: const InputDecoration(labelText: 'Password'),
+        //                 obscureText: true,
+        //                 controller: _passwordController,
+        //                 validator: (value) {
+        //                   if (value!.isEmpty || value.length < 5) {
+        //                     return 'Password is too short!';
+        //                   }
+        //                   return null;
+        //                 },
+        //                 onSaved: (value) {
+        //                   _authData['password'] = value!;
+        //                 },
+        //               ),
+        //               if (_authMode == AuthMode.Signup)
+        //                 TextFormField(
+        //                   enabled: _authMode == AuthMode.Signup,
+        //                   decoration:
+        //                       const InputDecoration(labelText: 'Confirm Password'),
+        //                   obscureText: true,
+        //                   validator: _authMode == AuthMode.Signup
+        //                       ? (value) {
+        //                           if (value != _passwordController.text) {
+        //                             return 'Passwords do not match!';
+        //                           }
+        //                           return null;
+        //                         }
+        //                       : null,
+        //                 ),
+        //               const SizedBox(
+        //                 height: 20,
+        //               ),
+        //               if (_isLoading)
+        //                 const CircularProgressIndicator()
+        //               else
+        //                 ElevatedButton(
+        //                   onPressed: _submit,
+        //                   style: ButtonStyle(
+        //                       shape:
+        //                           MaterialStateProperty.all<RoundedRectangleBorder>(
+        //                               RoundedRectangleBorder(
+        //                                   borderRadius: BorderRadius.circular(30))),
+        //                       backgroundColor: MaterialStateProperty.all(
+        //                           Theme.of(context).primaryColor),
+        //                       padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+        //                           const EdgeInsets.symmetric(
+        //                               horizontal: 30.0, vertical: 8.0)),
+        //                       foregroundColor: MaterialStateProperty.all(
+        //                           Theme.of(context)
+        //                               .primaryTextTheme
+        //                               .button!
+        //                               .color)),
+        //                   child: Text(
+        //                       _authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
+        //                 ),
+        //               TextButton(
+        //                 onPressed: _switchAuthMode,
+        //                 style: ButtonStyle(
+        //                   foregroundColor: MaterialStateProperty.all(
+        //                       Theme.of(context).primaryColor),
+        //                   padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+        //                       const EdgeInsets.symmetric(
+        //                           horizontal: 30.0, vertical: 4)),
+        //                 ),
+        //                 child: Text(
+        //                     '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
+        //               ),
+        //             ],
+        //           ),
+        //         ),
+        //       )),
+        );
   }
 }
